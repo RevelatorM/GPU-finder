@@ -1,11 +1,11 @@
 package main
 
 import (
-	"database/sql"
+	"database/sql" //this library to add sqlite
 	"fmt"
 	"os"
 
-	_ "modernc.org/sqlite"
+	_ "modernc.org/sqlite" //this command to add sqlite - "go get modernc.org/sqlite"
 )
 
 func main() {
@@ -16,9 +16,14 @@ func main() {
 	}
 	//===================
 	stmt, _ := database.Prepare("CREATE TABLE IF NOT EXISTS gpus (id INTEGER PRIMARY KEY, gpuname TEXT, vram TEXT, MHz TEXT, vmhz TEXT)")
-	stmt.Exec()
-
-	stmt, _ = database.Prepare("INSERT INTO gpus(gpuname,vram,MHz,vmhz) VALUES (?,?)")
+	stmt.Exec() //creating db
+	//filling db
+	stmt, _ = database.Prepare("INSERT INTO gpus(gpuname,vram,MHz,vmhz) VALUES (?,?,?,?)") //SQL command to fill
+	stmt.Exec("RTX 3060", "12GB", "1867 MHz chip", "15000 MHz VRAM")
+	stmt.Exec("RTX 3070", "8GB", "1815 MHz chip", "14000 MHz VRAM")
+	stmt.Exec("RTX 3080", "10GB", "1710 MHz chip", "19000 MHz VRAM")
+	stmt.Exec("RTX 4060", "8GB", "2535 MHz chip", "17000 MHz VRAM")
+	stmt.Exec("RTX 4070", "12GB", "2550 MHz chip", "21000 MHz VRAM")
 	//===================
 	for {
 		fmt.Print("Welcome to GPU finder,type in GPU`s name to find: \n")
@@ -32,14 +37,29 @@ func main() {
 			os.Exit(0)
 
 		default:
-			query := "SELECT * FROM gpus WHERE name LIKE ?"    //SQL request - "SELECT * FROM gpus WHERE name LIKE ?"
+			query := "SELECT * FROM gpus WHERE gpuname LIKE ?" //SQL request - "SELECT * FROM gpus WHERE name LIKE ?"
 			rows, err := database.Query(query, "%"+choice+"%") //rows variabale equals database,query is being taken from database variable
 			if err != nil {                                    //"%"+choice+"%" means LIKE from SQL "%" "%" = {}
 				fmt.Println(err)
 				return
 			}
 			defer rows.Close()
+			//===================
+			for rows.Next() { //rows.Next() - moves each string and searches
+				//after we got rows from here - query := "SELECT * FROM gpus WHERE gpuname LIKE ?"
+				//rows, err := database.Query(query, "%"+choice+"%")
+				var gpuname string
+				var vram string
+				var mhz string
+				var vmhz string
 
+				fmt.Printf("Name: %s  VRAM: %s  MHz: %s  VMHz: %s\n", gpuname, vram, mhz, vmhz)
+			}
+			//===================
+			if err = rows.Err(); err != nil {
+				fmt.Println("Rows error:", err)
+			}
+			//===================
 		}
 
 	}
