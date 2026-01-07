@@ -8,16 +8,6 @@ import (
 	_ "modernc.org/sqlite"
 )
 
-// ===================
-type GPU struct {
-	Name string
-	VRAM int
-	MHz  float32
-	vmhz float32
-}
-
-//===================
-
 func main() {
 	database, err := sql.Open("sqlite", "./database.db")
 	if err != nil {
@@ -32,22 +22,25 @@ func main() {
 	//===================
 	for {
 		fmt.Print("Welcome to GPU finder,type in GPU`s name to find: \n")
-		fmt.Print("or type 0 to cose: \n")
 		//===================
-		var choice int
-		fmt.Scan(&choice)
-
+		var choice string
+		fmt.Print("or type 0 to close: \n")
+		fmt.Scanln(&choice)
 		switch choice {
-		case 1:
-			addTask(database)
-		case 2:
-			showTask(database)
-		case 3:
-			deleteTask(database)
-		case 0:
+		case "0":
+			fmt.Println("Exit\n")
 			os.Exit(0)
+
 		default:
-			fmt.Println("error")
+			query := "SELECT * FROM gpus WHERE name LIKE ?"    //SQL request - "SELECT * FROM gpus WHERE name LIKE ?"
+			rows, err := database.Query(query, "%"+choice+"%") //rows variabale equals database,query is being taken from database variable
+			if err != nil {                                    //"%"+choice+"%" means LIKE from SQL "%" "%" = {}
+				fmt.Println(err)
+				return
+			}
+			defer rows.Close()
+
 		}
+
 	}
 }
