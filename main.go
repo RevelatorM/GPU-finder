@@ -9,14 +9,14 @@ import (
 )
 
 func main() {
-	database, err := sql.Open("sqlite", "./database.db")
+	database, err := sql.Open("sqlite", "./database.db") //creating db
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 	//===================
 	stmt, _ := database.Prepare("CREATE TABLE IF NOT EXISTS gpus (id INTEGER PRIMARY KEY, gpuname TEXT, vram TEXT, MHz TEXT, vmhz TEXT)")
-	stmt.Exec() //creating db
+	stmt.Exec() //creating table
 	//filling db
 	stmt, _ = database.Prepare("INSERT INTO gpus(gpuname,vram,MHz,vmhz) VALUES (?,?,?,?)") //SQL command to fill
 	stmt.Exec("RTX 3060", "12GB", "1867 MHz chip", "15000 MHz VRAM")
@@ -24,6 +24,9 @@ func main() {
 	stmt.Exec("RTX 3080", "10GB", "1710 MHz chip", "19000 MHz VRAM")
 	stmt.Exec("RTX 4060", "8GB", "2535 MHz chip", "17000 MHz VRAM")
 	stmt.Exec("RTX 4070", "12GB", "2550 MHz chip", "21000 MHz VRAM")
+	stmt.Exec("RX 7600", "8GB", "2755 MHz chip", "18000 MHz VRAM")
+	stmt.Exec("RX 9070 XT", "16GB", "3030 MHz chip", "20000 MHz VRAM")
+	stmt.Exec("Arc B570", "10GB", "2660 MHz chip", "19000 MHz VRAM")
 	//===================
 	for {
 		fmt.Print("Welcome to GPU finder,type in GPU`s name to find: \n")
