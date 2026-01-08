@@ -5,6 +5,9 @@ import (
 	"fmt"
 	"os"
 
+	"bufio"
+	"strings"
+
 	_ "modernc.org/sqlite" //this command to add sqlite - "go get modernc.org/sqlite"
 )
 
@@ -33,7 +36,9 @@ func main() {
 		//===================
 		var choice string
 		fmt.Print("or type 0 to close: \n")
-		fmt.Scanln(&choice)
+		reader := bufio.NewReader(os.Stdin)
+		choice, _ = reader.ReadString('\n')
+		choice = strings.TrimSpace(choice)
 		switch choice {
 		case "0":
 			fmt.Println("Exit\n")
@@ -48,15 +53,21 @@ func main() {
 			}
 			defer rows.Close()
 			//===================
-			for rows.Next() { //rows.Next() - moves each string and searches
+			for rows.Next() {
+				//rows.Next() - moves each string and searches
 				//after we got rows from here - query := "SELECT * FROM gpus WHERE gpuname LIKE ?"
 				//rows, err := database.Query(query, "%"+choice+"%")
+				var id int
 				var gpuname string
 				var vram string
 				var mhz string
 				var vmhz string
-
-				fmt.Printf("Name: %s  VRAM: %s  MHz: %s  VMHz: %s\n", gpuname, vram, mhz, vmhz)
+				err := rows.Scan(&id, &gpuname, &vram, &mhz, &vmhz)
+				if err != nil {
+					fmt.Println("Scan error:", err)
+					return
+				}
+				fmt.Printf("Name: %s  VRAM: %s  MHz: %s  VMHz: %s\n", gpuname, vram, mhz, vmhz) //%s for strings
 			}
 			//===================
 			if err = rows.Err(); err != nil {
